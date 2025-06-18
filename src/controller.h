@@ -1,15 +1,19 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "snake.h"
+#include "player_snake.h"
+
+class Game; // Forward declaration
 
 class Controller {
  public:
-  void HandleInput(bool &running, Snake &snake) const;
+  void HandleInput(bool &running, PlayerSnake &snake) const;
+  void SetGame(Game* game); // For AI toggling
 
  private:
-  void ChangeDirection(Snake &snake, Snake::Direction input,
-                       Snake::Direction opposite) const;
+  void ChangeDirection(PlayerSnake &snake, PlayerSnake::Direction input,
+                       PlayerSnake::Direction opposite) const;
+  Game* game_{nullptr};
 };
 
 #endif

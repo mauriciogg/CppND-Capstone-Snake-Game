@@ -1,15 +1,14 @@
 #include "controller.h"
+#include "game.h"
 #include <iostream>
 #include "SDL.h"
-#include "snake.h"
 
-void Controller::ChangeDirection(Snake &snake, Snake::Direction input,
-                                 Snake::Direction opposite) const {
-  if (snake.direction != opposite || snake.size == 1) snake.direction = input;
-  return;
+void Controller::ChangeDirection(PlayerSnake &snake, PlayerSnake::Direction input,
+                                 PlayerSnake::Direction opposite) const {
+  snake.ChangeDirection(input, opposite);
 }
 
-void Controller::HandleInput(bool &running, Snake &snake) const {
+void Controller::HandleInput(bool &running, PlayerSnake &snake) const {
   SDL_Event e;
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
@@ -17,25 +16,36 @@ void Controller::HandleInput(bool &running, Snake &snake) const {
     } else if (e.type == SDL_KEYDOWN) {
       switch (e.key.keysym.sym) {
         case SDLK_UP:
-          ChangeDirection(snake, Snake::Direction::kUp,
-                          Snake::Direction::kDown);
+          ChangeDirection(snake, PlayerSnake::Direction::kUp,
+                          PlayerSnake::Direction::kDown);
           break;
 
         case SDLK_DOWN:
-          ChangeDirection(snake, Snake::Direction::kDown,
-                          Snake::Direction::kUp);
+          ChangeDirection(snake, PlayerSnake::Direction::kDown,
+                          PlayerSnake::Direction::kUp);
           break;
 
         case SDLK_LEFT:
-          ChangeDirection(snake, Snake::Direction::kLeft,
-                          Snake::Direction::kRight);
+          ChangeDirection(snake, PlayerSnake::Direction::kLeft,
+                          PlayerSnake::Direction::kRight);
           break;
 
         case SDLK_RIGHT:
-          ChangeDirection(snake, Snake::Direction::kRight,
-                          Snake::Direction::kLeft);
+          ChangeDirection(snake, PlayerSnake::Direction::kRight,
+                          PlayerSnake::Direction::kLeft);
+          break;
+          
+        case SDLK_a:
+          // Toggle AI snake
+          if (game_) {
+            game_->ToggleAI();
+          }
           break;
       }
     }
   }
+}
+
+void Controller::SetGame(Game* game) {
+  game_ = game;
 }
