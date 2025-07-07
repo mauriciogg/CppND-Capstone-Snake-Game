@@ -1,12 +1,71 @@
-# CPPND: Capstone Snake Game Example
+# CPPND: Enhanced Snake Game with AI Opponent
 
-This is a starter repo for the Capstone project in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213). The code for this repo was inspired by [this](https://codereview.stackexchange.com/questions/212296/snake-game-in-c-with-sdl) excellent StackOverflow post and set of responses.
+This is an enhanced version of the Snake game with an AI opponent that uses A* pathfinding algorithm. The project demonstrates advanced C++ programming concepts including concurrency, smart pointers, RAII, and algorithmic pathfinding.
 
 <img src="snake_game.gif"/>
 
-The Capstone Project gives you a chance to integrate what you've learned throughout this program. This project will become an important part of your portfolio to share with current and future colleagues and employers.
+## New Features Added
 
-In this project, you can build your own C++ application or extend this Snake game, following the principles you have learned throughout this Nanodegree Program. This project will demonstrate that you can independently create applications using a wide range of C++ features.
+### 🤖 AI Snake Opponent
+- **Intelligent Movement**: AI snake uses A* pathfinding algorithm to navigate to food optimally
+- **Balanced Difficulty**: AI has reduced speed and occasional suboptimal moves for fair gameplay
+- **Visual Distinction**: Player snake is blue, AI snake is red
+
+### 🎮 Enhanced Gameplay
+- **Competitive Scoring**: Both player and AI scores are tracked and displayed in the window title
+- **Collision Reset**: Game resets on collision instead of terminating, allowing continuous play
+- **Round-based Play**: Each collision ends a round with score comparison and restart
+
+### 🧵 Concurrent Processing
+- **Multi-threaded AI**: A* pathfinding runs in a separate thread to maintain smooth gameplay
+- **Thread-safe Communication**: Uses mutexes and condition variables for safe data sharing
+- **Real-time Updates**: AI continuously recalculates optimal paths during gameplay
+
+### 💻 Modern C++ Features
+- **Smart Pointers**: Automatic memory management with `std::unique_ptr` and `std::shared_ptr`
+- **RAII**: Resource management for threads, mutexes, and SDL resources
+- **STL Containers**: Priority queues for A*, vectors for paths, unordered sets for visited nodes
+- **Inheritance Hierarchy**: Clean OOP design with base snake class and specialized implementations
+
+## Expected Program Behavior
+
+### Game Mechanics
+- **Player Control**: Use arrow keys to control the blue snake
+- **AI Behavior**: Red AI snake automatically navigates toward food using optimal pathfinding
+- **Food Collection**: Both snakes compete for the same food item
+- **Growth**: Snakes grow longer and slightly faster when eating food
+- **Collision Handling**: Any collision (snake-to-snake or self-collision) resets the game
+
+### Console Output
+When the game starts:
+```
+Game has terminated successfully!
+Player Score: X
+Player Size: Y
+AI Score: Z
+AI Size: W
+```
+
+During gameplay, each collision triggers:
+```
+=== GAME OVER ===
+Final Scores - Player: X | AI: Y
+Snake Sizes - Player: A | AI: B
+[Player wins this round! / AI wins this round! / It's a tie!]
+Restarting game...
+```
+
+### Visual Elements
+- **Window Title**: Shows real-time scores and FPS: "Player: X AI: Y FPS: Z"
+- **Player Snake**: Blue colored segments
+- **AI Snake**: Red colored segments  
+- **Food**: Yellow/gold colored
+- **Background**: Dark gray
+
+### Performance
+- **Smooth Gameplay**: 60 FPS target with concurrent AI processing
+- **Responsive Controls**: Player input handled in main thread
+- **Balanced AI**: Strategic delays and randomness prevent AI from being unbeatable
 
 ## Dependencies for Running Locally
 * cmake >= 3.7
