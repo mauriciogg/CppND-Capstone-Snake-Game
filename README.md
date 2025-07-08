@@ -97,7 +97,7 @@ SnakeBase (Abstract Base Class)
 
 ## Rubric Points Addressed
 
-This project meets all required rubric criteria through the AI snake implementation. Below are the specific rubric points addressed with corresponding code locations:
+Below are the specific rubric points addressed with corresponding code locations:
 
 ### Loops, Functions, and I/O
 
