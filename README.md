@@ -10,7 +10,7 @@ This is an enhanced version of the Snake game with an AI opponent that uses A* p
 
 An extra snake was added (AISnake class). Implemented in (src/ai_snke.<cpp.h>. The snake competes with the human player snake for the food. The snake uses the
 A* pathfinding algorithm to find the food, but I added random mistakes to the movements and slowdowns to
-the AI snake movements to not make the game fair. The values for fairness where chosen arbitrarily by playing
+the AI snake movements to not make the game terribly diffivult. The values for fairness where chosen arbitrarily by playing
 against the AI snake with different values and choosing ones that seemed balanced. The logic for fairness
 is implemented in the methods `ShouldMoveThisFrame` and `ShouldMakeMistake`. The human snake is blue, AI snake is red.
 When the two snakes collide the final scores are logged to the console and then reset. The program does not terminate.
