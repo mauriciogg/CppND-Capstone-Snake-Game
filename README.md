@@ -1,50 +1,34 @@
 # CPPND: Enhanced Snake Game with AI Opponent
 
-This is an enhanced version of the Snake game with an AI opponent that uses A* pathfinding algorithm. The project demonstrates advanced C++ programming concepts including concurrency, smart pointers, RAII, and algorithmic pathfinding.
+This is an enhanced version of the Snake game with an AI opponent that uses A* pathfinding algorithm. 
 
 <img src="snake_game.gif"/>
 
 ## New Features Added
 
-### 🤖 AI Snake Opponent
-- **Intelligent Movement**: AI snake uses A* pathfinding algorithm to navigate to food optimally
-- **Balanced Difficulty**: AI has reduced speed and occasional suboptimal moves for fair gameplay
-- **Visual Distinction**: Player snake is blue, AI snake is red
+### AI Snake Player 
 
-### 🎮 Enhanced Gameplay
-- **Competitive Scoring**: Both player and AI scores are tracked and displayed in the window title
-- **Collision Reset**: Game resets on collision instead of terminating, allowing continuous play
-- **Round-based Play**: Each collision ends a round with score comparison and restart
+An extra snake was added (AISnake class). Implemented in (src/ai_snke.<cpp.h>. The snake competes with the human player snake for the food. The snake uses the
+A* pathfinding algorithm to find the food, but I added random mistakes to the movements and slowdowns to
+the AI snake movements to not make the game fair. The values for fairness where chosen arbitrarily by playing
+against the AI snake with different values and choosing ones that seemed balanced. The logic for fairness
+is implemented in the methods `ShouldMoveThisFrame` and `ShouldMakeMistake`. The human snake is blue, AI snake is red.
+When the two snakes collide the final scores are logged to the console and then reset. The program does not terminate.
 
-### 🧵 Concurrent Processing
-- **Multi-threaded AI**: A* pathfinding runs in a separate thread to maintain smooth gameplay
-- **Thread-safe Communication**: Uses mutexes and condition variables for safe data sharing
-- **Real-time Updates**: AI continuously recalculates optimal paths during gameplay
+## Running the project
 
-### 💻 Modern C++ Features
-- **Smart Pointers**: Automatic memory management with `std::unique_ptr` and `std::shared_ptr`
-- **RAII**: Resource management for threads, mutexes, and SDL resources
-- **STL Containers**: Priority queues for A*, vectors for paths, unordered sets for visited nodes
-- **Inheritance Hierarchy**: Clean OOP design with base snake class and specialized implementations
+### Build and run the game:
 
-## Expected Program Behavior
-
+```
+    mkdir build && cd build
+    cmake ..
+    ./SnakeGame    
+```
 ### Game Mechanics
-- **Player Control**: Use arrow keys to control the blue snake
-- **AI Behavior**: Red AI snake automatically navigates toward food using optimal pathfinding
-- **Food Collection**: Both snakes compete for the same food item
-- **Growth**: Snakes grow longer and slightly faster when eating food
-- **Collision Handling**: Any collision (snake-to-snake or self-collision) resets the game
 
-### Console Output
-When the game starts:
-```
-Game has terminated successfully!
-Player Score: X
-Player Size: Y
-AI Score: Z
-AI Size: W
-```
+There are two snakes. An AI snake and the human controlled snake.
+Use arrow keys to control the blue snake and move it towrds the food. Colliding with the AI snake will result in game over
+and the scores will reset. Both snakes compete for food and score the most points.
 
 During gameplay, each collision triggers:
 ```
@@ -55,54 +39,46 @@ Snake Sizes - Player: A | AI: B
 Restarting game...
 ```
 
-### Visual Elements
-- **Window Title**: Shows real-time scores and FPS: "Player: X AI: Y FPS: Z"
-- **Player Snake**: Blue colored segments
-- **AI Snake**: Red colored segments  
-- **Food**: Yellow/gold colored
-- **Background**: Dark gray
-
-### Performance
-- **Smooth Gameplay**: 60 FPS target with concurrent AI processing
-- **Responsive Controls**: Player input handled in main thread
-- **Balanced AI**: Strategic delays and randomness prevent AI from being unbeatable
-
 ## Rubric Points Addressed
 
 This project meets all required rubric criteria through the AI snake implementation. Below are the specific rubric points addressed with corresponding code locations:
 
-### Object Oriented Programming (meets all 6 criteria)
+### Loops, Functions, and I/O
+
+1. **The project demonstrates an understanding of C++ functions and control structures**
+   - `src/astar_pathfinder.cpp` implementation of A* pathfinding algorithm with loops and conditionals
+   - `src/ai_snake.cpp` AI update logic with control structures
+
+2. **The project code is clearly organized into functions**
+   - The projec is organized in classes with well defined and encapsulated behavior.
+   - Snake specific logic is encapsulated in `src/player_snake.h` and `src/ai_snake.h` but common logic is placed in `src/base_snake.h`
+   - A* star algorithm logic and implementation is defined as its own class. AI snake uses the A* class as oposed of implementing it.
+   - The state of the game is tracked in its own class by GameState (`src/game_state.h`)
+   
+### Object Oriented Programming
 
 1. **Classes use appropriate access specifiers for class members**
-   - `src/snake_base.h` lines 9-43: Public interface methods, protected/private data members
-   - `src/ai_snake.h` lines 10-35: Public methods, private implementation details
-   - `src/game_state.h` lines 11-32: Public atomic members, private mutex and data
+   - `src/snake_base.h` lines 9-43
+   - `src/ai_snake.h` lines 10-35
+   - `src/game_state.h` lines 11-32
 
 2. **Class constructors utilize member initialization lists**
-   - `src/snake_base.cpp` lines 4-6: SnakeBase constructor with initialization list
-   - `src/ai_snake.cpp` lines 5-16: AISnake constructor with extensive initialization list
-   - `src/game_state.cpp` lines 4-5: GameState constructor with initialization list
+   - `src/snake_base.cpp` lines 4-6
+   - `src/ai_snake.cpp` lines 5-16
+   - `src/game_state.cpp` lines 4-5
 
 3. **Classes abstract implementation details from their interfaces**
-   - `src/snake_base.h` lines 14-15: Pure virtual Update() method abstracts snake behavior
-   - `src/astar_pathfinder.h` lines 26-31: Private pathfinding implementation hidden from interface
-   - `src/pathfinding_thread.h` lines 23-26: Thread management details abstracted
-
-4. **Overloaded functions allow the same function to operate on different parameters**
-   - `src/snake_base.h` lines 12-13: Virtual destructor and constructor overloading
-   - `src/astar_pathfinder.cpp` lines 15-18: Node constructor with default parameters
+   - `src/snake_base.h` lines 15-16: Pure virtual () method abstracts snake behavior and is implemented by AISnake and PlayerSnake.
+   - `src/pathfinding_thread.h` lines 23-26: Thread management details hidden. 
 
 5. **Classes follow an appropriate inheritance hierarchy with virtual and override functions**
    - `src/snake_base.h` line 13: Virtual destructor for proper inheritance
    - `src/snake_base.h` line 15: Pure virtual Update() method
    - `src/ai_snake.h` line 13: Override Update() method in derived class
-   - `src/player_snake.h` line 9: PlayerSnake inherits from SnakeBase
+   - `src/player_snake.h` PlayerSnake inherits from SnakeBase
+   - `src/ai_snake.h` AISnake inherits from SnakeBase
 
-6. **Templates generalize functions or classes in the project**
-   - `src/astar_pathfinder.h` lines 4-7: STL template usage (std::vector, std::queue, std::unordered_set)
-   - `src/ai_snake.h` lines 6-8: Template containers for pathfinding and random number generation
-
-### Memory Management (meets all 6 criteria)
+### Memory Management
 
 1. **The project makes use of references in function declarations**
    - `src/ai_snake.h` line 15: `const std::vector<const SnakeBase*>& obstacles`
@@ -117,10 +93,6 @@ This project meets all required rubric criteria through the AI snake implementat
    - `src/game_state.cpp` lines 8, 13, 18, 23: std::lock_guard for automatic mutex management
    - `src/pathfinding_thread.cpp` lines 20-23: RAII thread management
 
-4. **The project follows the Rule of 5**
-   - `src/snake_base.h` line 13: Virtual destructor with default implementation
-   - Smart pointer usage eliminates need for custom copy/move operations
-
 5. **The project uses move semantics to move data, instead of copying it**
    - `src/ai_snake.cpp` lines 7-13: Move semantics in constructor initialization
    - `src/astar_pathfinder.cpp` line 47: Move semantics in path reconstruction
@@ -130,7 +102,7 @@ This project meets all required rubric criteria through the AI snake implementat
    - `src/game.h` lines 21-24: `std::shared_ptr` for snakes and game state
    - `src/pathfinding_thread.h` line 17: `std::unique_ptr<std::thread> worker_thread_`
 
-### Concurrency (meets all 4 criteria)
+### Concurrency
 
 1. **The project uses multithreading**
    - `src/pathfinding_thread.h` line 4: Thread header inclusion
@@ -150,22 +122,6 @@ This project meets all required rubric criteria through the AI snake implementat
    - `src/pathfinding_thread.h` line 19: `std::condition_variable cv_`
    - `src/pathfinding_thread.cpp` lines 25-28: Condition variable wait and notify
    - `src/pathfinding_thread.cpp` line 14: NotifyStateChanged() triggers condition variable
-
-### Loops, Functions, and I/O (meets all 4 criteria)
-
-1. **The project demonstrates an understanding of C++ functions and control structures**
-   - `src/astar_pathfinder.cpp` lines 12-49: Complex A* pathfinding algorithm with loops and conditionals
-   - `src/ai_snake.cpp` lines 19-44: AI update logic with control structures
-
-2. **The project code is clearly organized into functions**
-   - `src/astar_pathfinder.h` lines 26-31: Modular pathfinding functions
-   - `src/ai_snake.h` lines 28-35: Organized AI behavior functions
-
-3. **The project reads data from a file and processes the data, or the program writes data to a file**
-   - `src/game.cpp` lines 60-70: Game state file operations (console output)
-
-4. **The project accepts user input and processes the input**
-   - Integration maintains original user input processing while adding AI competitor
 
 ## Dependencies for Running Locally
 * cmake >= 3.7
