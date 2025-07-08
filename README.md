@@ -39,6 +39,62 @@ Snake Sizes - Player: A | AI: B
 Restarting game...
 ```
 
+## Code Structure Overview
+
+### Snake Class Hierarchy
+
+```
+SnakeBase (Abstract Base Class)
+├── PlayerSnake (Human-controlled snake)
+└── AISnake (AI-controlled snake)
+```
+
+- **`SnakeBase`** (`src/snake_base.h/.cpp`): Abstract base class defining common snake behavior
+  - Pure virtual `Update()` method for polymorphic behavior
+  - Shared functionality: movement, body management, collision detection
+
+- **`PlayerSnake`** (`src/player_snake.h/.cpp`): Inherits from SnakeBase
+  - Implements `Update()` with user-controlled movement
+
+- **`AISnake`** (`src/ai_snake.h/.cpp`): Inherits from SnakeBase
+  - Implements `Update()` with AI pathfinding logic
+  - Uses `AStarPathfinder` to find the food 
+
+### Pathfinding Logig 
+
+- **`AStarPathfinder`** (`src/astar_pathfinder.h/.cpp`): A* algorithm implementation
+  - Uses a priority queue as the underlying container for efficiency 
+  - Returns optimal path as vector of SDL_Point coordinates
+
+- **`PathfindingThread`** (`src/pathfinding_thread.h/.cpp`): Concurrent processing
+  - Runs A* calculations in separate thread to avoid blocking the main thread 
+
+### Game State Management
+
+- **`GameState`** (`src/game_state.h/.cpp`): Thread-safe state container
+  - Manages shared data between main game loop and pathfinding thread
+  - Uses mutexes (`std::lock_guard`) for thread safety
+  - Stores food position, snake references, and game status
+
+### Threading Architecture
+
+```
+**Main Thread**
+├── Game Loop 
+├── Rendering
+├── Input Handling
+└── State Updates
+
+
+**Pathfinding Thread**
+├── A* Calculations
+├── Path Updates
+└── Obstacle Detection
+
+```
+
+
+
 ## Rubric Points Addressed
 
 This project meets all required rubric criteria through the AI snake implementation. Below are the specific rubric points addressed with corresponding code locations:
