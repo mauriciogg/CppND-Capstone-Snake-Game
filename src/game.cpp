@@ -35,7 +35,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
-    controller.InputEvent(running, *player_snake_);
+    controller.HandleInput(running, *player_snake_);
     Update();
     renderer.Render(*player_snake_, *ai_snake_, food);
 

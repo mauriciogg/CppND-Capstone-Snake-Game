@@ -2,7 +2,7 @@
 #include <iostream>
 #include "SDL.h"
 
-void Controller::InputEvent(bool &running, PlayerSnake &snake) const {
+void Controller::HandleInput(bool &running, PlayerSnake &snake) const {
   SDL_Event e;
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {

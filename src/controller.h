@@ -5,7 +5,7 @@
 
 class Controller {
  public:
-  void InputEvent(bool &running, PlayerSnake &snake) const;
+  void HandleInput(bool &running, PlayerSnake &snake) const;
 };
 
 #endif
