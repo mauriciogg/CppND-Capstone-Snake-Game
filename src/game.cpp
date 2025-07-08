@@ -3,11 +3,23 @@
 #include "SDL.h"
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
-    : snake(grid_width, grid_height),
+    : grid_width_(grid_width), grid_height_(grid_height),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)) {
+  player_snake_ = std::make_shared<PlayerSnake>(grid_width, grid_height);
+  ai_snake_ = std::make_shared<AISnake>(grid_width, grid_height);
+  game_state_ = std::make_shared<GameState>(grid_width, grid_height);
+  pathfinding_thread_ = std::make_unique<PathfindingThread>(game_state_);
+  
   PlaceFood();
+  pathfinding_thread_->Start();
+}
+
+Game::~Game() {
+  if (pathfinding_thread_) {
+    pathfinding_thread_->Stop();
+  }
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -19,13 +31,13 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   int frame_count = 0;
   bool running = true;
 
-  while (running) {
+  while (running && game_state_->game_running) {
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
-    controller.HandleInput(running, snake);
+    controller.HandleInput(running, *player_snake_);
     Update();
-    renderer.Render(snake, food);
+    renderer.Render(*player_snake_, *ai_snake_, food);
 
     frame_end = SDL_GetTicks();
 
@@ -36,7 +48,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
 
     // After every second, update the window title.
     if (frame_end - title_timestamp >= 1000) {
-      renderer.UpdateWindowTitle(score, frame_count);
+      renderer.UpdateWindowTitle(player_score_, ai_score_, frame_count);
       frame_count = 0;
       title_timestamp = frame_end;
     }
@@ -55,33 +67,114 @@ void Game::PlaceFood() {
   while (true) {
     x = random_w(engine);
     y = random_h(engine);
-    // Check that the location is not occupied by a snake item before placing
-    // food.
-    if (!snake.SnakeCell(x, y)) {
+    // Check that the location is not occupied by either snake before placing food.
+    if (!player_snake_->SnakeCell(x, y) && !ai_snake_->SnakeCell(x, y)) {
       food.x = x;
       food.y = y;
+      game_state_->UpdateFood(food);
+      pathfinding_thread_->NotifyStateChanged();
       return;
     }
   }
 }
 
 void Game::Update() {
-  if (!snake.alive) return;
+  if (!player_snake_->IsAlive()) {
+    ResetGame();
+    return;
+  }
 
-  snake.Update();
+  player_snake_->Update();
+  ai_snake_->Update();
+  
+  // Update game state
+  game_state_->UpdatePlayerSnake(player_snake_);
+  game_state_->UpdateAISnake(ai_snake_);
+  
+  HandleCollisions();
 
-  int new_x = static_cast<int>(snake.head_x);
-  int new_y = static_cast<int>(snake.head_y);
-
-  // Check if there's food over here
-  if (food.x == new_x && food.y == new_y) {
-    score++;
+  // Check if player snake got food
+  int player_x = static_cast<int>(player_snake_->GetHeadX());
+  int player_y = static_cast<int>(player_snake_->GetHeadY());
+  
+  if (food.x == player_x && food.y == player_y) {
+    player_score_++;
     PlaceFood();
-    // Grow snake and increase speed.
-    snake.GrowBody();
-    snake.speed += 0.02;
+    player_snake_->GrowBody();
+    player_snake_->speed += 0.02;
+  }
+  
+  // Check if AI snake got food
+  int ai_x = static_cast<int>(ai_snake_->GetHeadX());
+  int ai_y = static_cast<int>(ai_snake_->GetHeadY());
+  
+  if (food.x == ai_x && food.y == ai_y) {
+    ai_score_++;
+    PlaceFood();
+    ai_snake_->GrowBody();
+    ai_snake_->speed += 0.02;  
   }
 }
 
-int Game::GetScore() const { return score; }
-int Game::GetSize() const { return snake.size; }
+int Game::GetPlayerScore() const { return player_score_; }
+int Game::GetAIScore() const { return ai_score_; }
+int Game::GetPlayerSize() const { return player_snake_->GetSize(); }
+int Game::GetAISize() const { return ai_snake_->GetSize(); }
+
+bool Game::CheckSnakeCollision(const SnakeBase* snake1, const SnakeBase* snake2) const {
+  if (!snake1 || !snake2) return false;
+  
+  int snake1_x = static_cast<int>(snake1->GetHeadX());
+  int snake1_y = static_cast<int>(snake1->GetHeadY());
+  
+  return snake2->SnakeCell(snake1_x, snake1_y);
+}
+
+void Game::HandleCollisions() {
+  // Check if player snake collided with AI snake
+  if (CheckSnakeCollision(player_snake_.get(), ai_snake_.get())) {
+    ResetGame();
+    return;
+  }
+  
+  // Check if AI snake collided with player snake
+  if (CheckSnakeCollision(ai_snake_.get(), player_snake_.get())) {
+    ResetGame();
+    return;
+  }
+}
+
+void Game::ResetGame() {
+  // Print final scores before reset
+  std::cout << "=== GAME OVER ===\n";
+  std::cout << "Final Scores - Player: " << player_score_ << " | AI: " << ai_score_ << "\n";
+  std::cout << "Snake Sizes - Player: " << player_snake_->GetSize() << " | AI: " << ai_snake_->GetSize() << "\n";
+  
+  if (player_score_ > ai_score_) {
+    std::cout << "Player wins this round!\n";
+  } else if (ai_score_ > player_score_) {
+    std::cout << "AI wins this round!\n";
+  } else {
+    std::cout << "It's a tie!\n";
+  }
+  
+  std::cout << "Restarting game...\n\n";
+  
+  // Reset scores
+  player_score_ = 0;
+  ai_score_ = 0;
+  
+  // Reset snakes
+  player_snake_ = std::make_shared<PlayerSnake>(grid_width_, grid_height_);
+  ai_snake_ = std::make_shared<AISnake>(grid_width_, grid_height_);
+  
+  // Update game state
+  game_state_->UpdatePlayerSnake(player_snake_);
+  game_state_->UpdateAISnake(ai_snake_);
+  
+  // Place new food
+  PlaceFood();
+  
+  // Notify pathfinding thread
+  pathfinding_thread_->NotifyStateChanged();
+}
