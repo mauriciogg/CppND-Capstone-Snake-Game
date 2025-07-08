@@ -1,11 +1,11 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "snake.h"
+#include "player_snake.h"
 
 class Controller {
  public:
-  void InputEvent(bool &running, Snake &snake) const;
+  void InputEvent(bool &running, PlayerSnake &snake) const;
 };
 
 #endif

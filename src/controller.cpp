@@ -1,9 +1,8 @@
 #include "controller.h"
 #include <iostream>
 #include "SDL.h"
-#include "snake.h"
 
-void Controller::InputEvent(bool &running, Snake &snake) const {
+void Controller::InputEvent(bool &running, PlayerSnake &snake) const {
   SDL_Event e;
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
@@ -11,23 +10,23 @@ void Controller::InputEvent(bool &running, Snake &snake) const {
     } else if (e.type == SDL_KEYDOWN) {
       switch (e.key.keysym.sym) {
         case SDLK_UP:
-          snake.ChangeDirection(Snake::Direction::kUp,
-                          Snake::Direction::kDown);
+          snake.ChangeDirection(PlayerSnake::Direction::kUp,
+                          PlayerSnake::Direction::kDown);
           break;
 
         case SDLK_DOWN:
-          snake.ChangeDirection(Snake::Direction::kDown,
-                          Snake::Direction::kUp);
+          snake.ChangeDirection(PlayerSnake::Direction::kDown,
+                          PlayerSnake::Direction::kUp);
           break;
 
         case SDLK_LEFT:
-          snake.ChangeDirection(Snake::Direction::kLeft,
-                          Snake::Direction::kRight);
+          snake.ChangeDirection(PlayerSnake::Direction::kLeft,
+                          PlayerSnake::Direction::kRight);
           break;
 
         case SDLK_RIGHT:
-          snake.ChangeDirection(Snake::Direction::kRight,
-                          Snake::Direction::kLeft);
+          snake.ChangeDirection(PlayerSnake::Direction::kRight,
+                          PlayerSnake::Direction::kLeft);
           break;
       }
     }

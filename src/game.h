@@ -6,7 +6,7 @@
 #include "SDL.h"
 #include "controller.h"
 #include "renderer.h"
-#include "snake.h"
+#include "player_snake.h"
 #include "ai_snake.h"
 #include "game_state.h"
 #include "pathfinding_thread.h"
